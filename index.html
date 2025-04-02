@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Quiz de Actores</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f2f2f2;
+    }
+    .container {
+      max-width: 600px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .question img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    .options {
+      list-style: none;
+      padding: 0;
+      margin: 20px 0;
+    }
+    .options li {
+      margin: 10px 0;
+    }
+    button {
+      padding: 10px 20px;
+      background: #007BFF;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    #score {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="score">Puntaje: 0</div>
+    <div class="question">
+      <img id="actorImage" src="" alt="Actor">
+    </div>
+    <ul class="options" id="optionsList">
+    </ul>
+    <button id="nextButton" style="display: none;">Siguiente</button>
+    <button id="exitButton">Salir</button>
+  </div>
+  <script>
+    // Datos de ejemplo: actores con su imagen (URL de ejemplo) y películas.
+    const actores = [
+      {
+        nombre: "Leonardo DiCaprio",
+        imagen: "https://via.placeholder.com/400x300?text=Leonardo+DiCaprio",
+        peliculas: ["Titanic", "El Lobo de Wall Street", "Inception"]
+      },
+      {
+        nombre: "Brad Pitt",
+        imagen: "https://via.placeholder.com/400x300?text=Brad+Pitt",
+        peliculas: ["Fight Club", "Seven", "Once Upon a Time in Hollywood"]
+      },
+      {
+        nombre: "Scarlett Johansson",
+        imagen: "https://via.placeholder.com/400x300?text=Scarlett+Johansson",
+        peliculas: ["Lost in Translation", "Avengers", "Lucy"]
+      },
+      {
+        nombre: "Natalie Portman",
+        imagen: "https://via.placeholder.com/400x300?text=Natalie+Portman",
+        peliculas: ["Black Swan", "Thor", "V for Vendetta"]
+      }
+    ];
+
+    let score = 0;
+    let streak = 0;
+    let currentActor = null;
+
+    // Función para seleccionar un actor aleatorio.
+    function getRandomActor() {
+      return actores[Math.floor(Math.random() * actores.length)];
+    }
+
+    // Genera 4 opciones, incluyendo la respuesta correcta.
+    function generateOptions(correctActor) {
+      const options = [correctActor.nombre];
+      while(options.length < 4) {
+        const actor = getRandomActor();
+        if (!options.includes(actor.nombre)) {
+          options.push(actor.nombre);
+        }
+      }
+      return options.sort(() => Math.random() - 0.5);
+    }
+
+    // Carga una nueva pregunta.
+    function loadQuestion() {
+      currentActor = getRandomActor();
+      document.getElementById("actorImage").src = currentActor.imagen;
+      const options = generateOptions(currentActor);
+      const optionsList = document.getElementById("optionsList");
+      optionsList.innerHTML = "";
+      options.forEach(option => {
+        const li = document.createElement("li");
+        const button = document.createElement("button");
+        button.innerText = option;
+        button.onclick = () => checkAnswer(option);
+        li.appendChild(button);
+        optionsList.appendChild(li);
+      });
+      document.getElementById("nextButton").style.display = "none";
+    }
+
+    // Comprueba la respuesta del usuario.
+    function checkAnswer(selected) {
+      if (selected === currentActor.nombre) {
+        score += 10;
+        streak++;
+        if (streak % 3 === 0) { // +5 puntos extra cada 3 aciertos seguidos.
+          score += 5;
+        }
+        alert("¡Correcto! Películas: " + currentActor.peliculas.join(", "));
+      } else {
+        alert("Incorrecto. La respuesta correcta es " + currentActor.nombre + ". Películas: " + currentActor.peliculas.join(", "));
+        streak = 0;
+      }
+      document.getElementById("score").innerText = "Puntaje: " + score;
+      document.getElementById("nextButton").style.display = "block";
+    }
+
+    // Eventos de botones.
+    document.getElementById("nextButton").addEventListener("click", loadQuestion);
+    document.getElementById("exitButton").addEventListener("click", () => {
+      if (confirm("¿Quieres salir? Tu puntaje final es: " + score)) {
+        // Reinicia el juego.
+        score = 0;
+        streak = 0;
+        document.getElementById("score").innerText = "Puntaje: " + score;
+        loadQuestion();
+      }
+    });
+
+    // Inicia el quiz.
+    loadQuestion();
+  </script>
+</body>
+</html>
